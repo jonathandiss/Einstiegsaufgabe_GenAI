@@ -1,0 +1,1 @@
+# Einstiegsaufgabe_GenAI
