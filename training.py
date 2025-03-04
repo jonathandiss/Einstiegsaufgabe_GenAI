@@ -1,12 +1,14 @@
+import torch
 import pandas as pd
-from datasets import Dataset
+from datasets import load_dataset, Dataset
+import transformers
 from transformers import BartTokenizer, BartForConditionalGeneration, TrainingArguments, Trainer
 
-# Load model and tokenizer
-tokenizer = BartTokenizer.from_pretrained("facebook/bart-large-cnn")
-model = BartForConditionalGeneration.from_pretrained("facebook/bart-large-cnn")
 
-# Read csv into DataFrame
+# Überprüfen, ob eine GPU verfügbar ist
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+print(f"Verwende Gerät: {device}")
+
 df = pd.read_csv('bbc_news.csv', nrows=500)
 
 # Convert DataFrame to Dataset
@@ -18,46 +20,50 @@ dataset = dataset.train_test_split(train_size=0.8, seed=42)
 train_dataset = dataset["train"]
 test_dataset = dataset["test"]
 
-def tokenize_func(example):
-    model_inputs = tokenizer(example["description"], max_length=1024, truncation=True, padding="max_length")
-    labels = tokenizer(example["title"], max_length=128, truncation=True, padding="max_length")
-    model_inputs["labels"] = labels["input_ids"]
+tokenizer = transformers.AutoTokenizer.from_pretrained("facebook/bart-large-cnn")
+
+def preprocess_function(examples):
+    model_inputs = tokenizer(
+        examples['description'], max_length=1024, truncation=True, padding="max_length"
+    )
+    labels = tokenizer(
+        text_target=examples['title'], max_length=64, truncation=True, padding="max_length"
+    )
+    model_inputs['labels'] = labels['input_ids']
     return model_inputs
 
-train_dataset = train_dataset.map(tokenize_func, batched=True)
-test_dataset = test_dataset.map(tokenize_func, batched=True)
+train_dataset = train_dataset.map(preprocess_function, batched=True)
+test_dataset = test_dataset.map(preprocess_function, batched=True)
 
-training_args = TrainingArguments(
-    output_dir="Einstiegsaufgabe_GenAI",
-    evaluation_strategy ="epoch",
-    per_gpu_train_batch_size=4,
-    per_gpu_eval_batch_size=4,
-    learning_rate=5e-5,
-    num_train_epochs=3,
-    disable_tqdm=False
+model = transformers.AutoModelForSeq2SeqLM.from_pretrained("facebook/bart-large-cnn")
+
+model.to(device)
+
+# Batching function
+data_collator = transformers.DataCollatorForSeq2Seq(tokenizer=tokenizer, model=model)
+
+# Define arguments of the finetuning
+training_args = transformers.Seq2SeqTrainingArguments(
+    output_dir='trained_model',
+    evaluation_strategy='epoch',
+    learning_rate=2e-5,
+    per_device_train_batch_size=4,  # batch size for train
+    per_device_eval_batch_size=4,  # batch size for eval
+    weight_decay=0.01,
+    save_total_limit=3,
+    num_train_epochs=10,
+    fp16=torch.cuda.is_available(),
+    predict_with_generate=True,
+    disable_tqdm=not torch.cuda.is_available()
 )
 
-trainer = Trainer(
+trainer = transformers.Seq2SeqTrainer(
     model=model,
     args=training_args,
     train_dataset=train_dataset,
     eval_dataset=test_dataset,
-    tokenizer=tokenizer
+    tokenizer=tokenizer,
+    data_collator=data_collator,
 )
 
 trainer.train()
-
-model.save_pretrained("trained_model")
-tokenizer.save_pretrained("trained_model")
-
-
-
-
-
-
-
-
-
-
-
-
