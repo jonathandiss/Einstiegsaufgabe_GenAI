@@ -19,8 +19,8 @@ train_dataset = dataset["train"]
 test_dataset = dataset["test"]
 
 def tokenize_func(example):
-    model_inputs = tokenizer(example["description"], max_length=512, truncation=True, padding="max_length")
-    labels = tokenizer(example["title"], max_length=64, truncation=True, padding="max_length")
+    model_inputs = tokenizer(example["description"], max_length=1024, truncation=True, padding="max_length")
+    labels = tokenizer(example["title"], max_length=128, truncation=True, padding="max_length")
     model_inputs["labels"] = labels["input_ids"]
     return model_inputs
 
