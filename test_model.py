@@ -2,23 +2,12 @@ from transformers import BartTokenizer, BartForConditionalGeneration
 
 
 model_path = "trained_model"
-tokenizer = BartTokenizer.from_pretrained(model_path)
+tokenizer = BartTokenizer.from_pretrained("facebook/bart-large-cnn")
 model = BartForConditionalGeneration.from_pretrained(model_path)
 
 text = (
-    "President Donald Trump's decision to pause all US aid to Ukraine is a bitter blow – not just for Kyiv but also European allies who have been lobbying the US administration to continue its support. This is not the first time that the US has withheld military aid. Republicans in Congress blocked then-President Joe Biden's largest tranche of military assistance for Ukraine in the summer of 2023. Then, Ukraine just about managed to eke out its existing stocks of ammunition with the help of Europe."
+    "It got cold overnight, I look for my gloves. Searching for gloves like when I was a child, I remember.Don't forget your gloves - I rummage nervously in my school bag and only find one glove. I don't want to look any further, there's no snow today on Christmas Eve. Disappointed about this, I later walk beside my grandma on the well-trodden country lane over the bridge towards the town and past the dark little grove, which I think could look as bright and decorated with snow as with lights. I pray silently - please let it snow.I sing all the songs in the church loudly and from the bottom of my heart, please let it snow.I don't take my eyes off the round church window above the altar - it's going to snow.As the bells ring in the Christmas night, the miracle - dancing snowflakes like feathers from angel wings in front of the round window.I jump up from the pew laughing and cheering - snow, snow!I had to explain my appearance in the reverent surroundings later.A little sad today, I put on my gloves, which I have found after all. I have lost my faith in miracles - finding them again could work."
 )
-
-print({text})
-
-# inputs = tokenizer(text, return_tensors="pt", max_length=512, truncation=True)
-# print(inputs)
-#
-# summary = model.generate(inputs["input_ids"], max_length=64, num_beams=5, early_stopping=True)
-# print(summary)
-#
-# title = tokenizer.decode(summary[0], skip_special_tokens=True)
-# print(title)
 
 input_ids = tokenizer.encode(
     text,
@@ -26,16 +15,15 @@ input_ids = tokenizer.encode(
     max_length=1024,
     truncation=True,
 )
-print(input_ids)
 
 summary_text_ids = model.generate(
     input_ids=input_ids,
     bos_token_id=model.config.bos_token_id,
     eos_token_id=model.config.eos_token_id,
-    max_length=512,
+    max_length=142,
+    min_length=56,
     num_beams=4,
 )
-print(summary_text_ids)
 
 decoded_text = tokenizer.decode(summary_text_ids[0], skip_special_tokens=True)
 print(decoded_text)

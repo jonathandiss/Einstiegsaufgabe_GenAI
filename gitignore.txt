@@ -1,3 +1,5 @@
 .idea/
 /data/
 bbc_news.csv
+/trained_model/
+/trained_model2/
