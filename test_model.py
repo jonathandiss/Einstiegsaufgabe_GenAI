@@ -29,7 +29,10 @@ text = (
     "No nation can match the US in terms of space-based surveillance, intelligence gathering and communications. And it is not just provided by the US military, but commercial companies too."
 )
 
+print({text})
+
 inputs = tokenizer(text, return_tensors="pt", max_length=512, truncation=True)
+print(inputs)
 
 summary = model.generate(inputs["input_ids"], max_length=64, num_beams=4,early_stopping=True)
 print(summary)
