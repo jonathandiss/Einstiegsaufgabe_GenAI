@@ -15,6 +15,8 @@ In der Aufgabe wurden folgende Skripte erstellt:
 Auf Letzteres wird nicht weiter eingegangen, da es ausschließlich dazu diente den Datensatz auf seine Struktur zu untersuchen.<br>
 
 ## [training.py](training.py)
+*Hinweis: Die Bezeichnung von Test-Datensatz beschreibt den Datensatz für die Validierung.
+Wegen der Bezeichnung aus der train_test_split()-Methode wurde dieser Name beibehalten.*
 ### 1. Import der Bibliotheken
 ````python 
 import torch
@@ -147,3 +149,8 @@ Special Token wie z.B. die ganzen Paddings werden ignoriert.
 decoded_text = tokenizer.decode(summary_text_ids[0], skip_special_tokens=True)
 print(decoded_text)
 ````
+## Mögliche Next Steps:
+- Aufteilung des Datensatzes in Train, Test und Evaluation
+- Größere Dimensionen im Training (größerer Datensatz, mehr Epochen, etc.)
+- Anzeige von Metriken (loss, etc.) während dem Training
+- Metriken für die Bewertung des Modells nach dem Training
