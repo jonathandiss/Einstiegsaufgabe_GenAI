@@ -3,6 +3,7 @@
 Ziel dieser Einstiegsaufgabe ist es, den Vorgang zu entwickeln, mit dem zu gegebenen Nachrichtentexten jeweils Überschriften generiert werden. <br>
 <br>
 Das Projekt verwendet das vortrainiertes Modell ```facebook/bart-large-cnn``` und einen Datensatz von BBC-News. <br>
+Das trainerte Modell ist aufgrund der Größe nicht Bestandteil des Repositorys.
 
 ## Skripte
 ***
